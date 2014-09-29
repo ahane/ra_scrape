@@ -35,4 +35,5 @@ class Artist(scrapy.Item):
     sc_user = scrapy.Field()
     sc_link = scrapy.Field()
     sc_track_permalink = scrapy.Field()
+    sc_track_id = scrapy.Field()
     sc_value = scrapy.Field() #arbitray number for rankin artists

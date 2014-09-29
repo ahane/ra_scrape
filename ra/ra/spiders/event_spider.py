@@ -12,7 +12,8 @@ from collections import defaultdict
 BASE_URL = 'http://www.residentadvisor.net'
 LISTINGS_EXT = '/events.aspx?'
 BERLIN_AI = 34
-TODAY = datetime.date.today()
+#TODAY = datetime.date.today()
+TODAY = datetime.date(2014, 9, 27)
 with open('sc_cl_id.txt', 'r') as f:
     SC_CLIENT_ID = f.read().rstrip()
     sc_client_id = urllib.urlencode({"client_id": SC_CLIENT_ID})
@@ -51,7 +52,7 @@ class RAEventSpider(CrawlSpider):
         event['url'] = response.url    
         event['ra_event_id'] = self.extract_digits.search(event['url']).group(1)
         event['name'] = response.xpath("//div[@id = 'sectionHead']/h1/text()").extract()[0]
-        event['date'] = TODAY
+        event['date'] = TODAY.isoformat()
         event['artists'] = []
         
         
@@ -63,7 +64,7 @@ class RAEventSpider(CrawlSpider):
         club_link = response.xpath("//a[contains(@title, 'Club profile')]")
         if club_link:
             club = Club()
-            club['url'] = club_link.xpath("@href").extract()[0]
+            club['url'] = BASE_URL + '/' + club_link.xpath("@href").extract()[0]
             club['name'] = club_link.xpath("text()").extract()[0]
             id_match = self.extract_digits.search(club['url'])
             self.log(type(id_match))
@@ -123,10 +124,11 @@ class RAEventSpider(CrawlSpider):
         tracks = json.loads(response.body)
         if tracks:
             tracks = [defaultdict(int, t) for t in tracks] #some tracks miss fields
-            permalinks_plays = [(t['permalink_url'], t['playback_count']) for t in tracks]
+            permalinks_plays = [(t['id'], t['playback_count']) for t in tracks]
             permalinks_plays.sort(key=lambda x: x[1], reverse=True)
             
-            artist['sc_track_permalink'] = permalinks_plays[0][0]
+            artist['sc_track_id'] = permalinks_plays[0][0]
+            artist
             artist['sc_value'] = sum((p for l, p in permalinks_plays))
             
             event['artists'] = event['artists'] + [artist]
