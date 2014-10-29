@@ -12,8 +12,8 @@ from collections import defaultdict
 BASE_URL = 'http://www.residentadvisor.net'
 LISTINGS_EXT = '/events.aspx?'
 BERLIN_AI = 34
-TODAY = datetime.date.today()
-#TODAY = datetime.date(2014, 9, 29)
+#TODAY = datetime.date.today()
+TODAY = datetime.date(2014, 9, 29)
 
 listing_params = {'ai': BERLIN_AI,
                   'v': 'day',
@@ -232,7 +232,10 @@ class RAEventSpider(CrawlSpider):
             artist['sc_user'] = artist['sc_url'].split('/')[-1]
         
         event['artists'] = event['artists'] + [artist]
+        
         if response.meta['num_artists'] == len(event['artists']):
+           # from scrapy.shell import inspect_response
+           # inspect_response(response)
             yield event    
     
     
