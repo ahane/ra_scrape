@@ -15,6 +15,12 @@ try:
     
 except IOError:
     ra = db.insert_dict('third_party', {'name': 'Resident Advisor', 'url': 'http://www.residentadvisor.net/'})
+    
+try:
+    sc = db.get_single('third_party', 'SoundCloud', 'name')
+    
+except IOError:
+    sc = db.insert_dict('third_party', {'name': 'SoundCloud', 'url': 'https://soundcloud.com/'})
 
 try:
     berlin = db.get_single('region', 'Berlin', 'name')
@@ -100,7 +106,7 @@ class EventPipeline(object):
         try:
             event_page = db.get_single('event_page', item['ra_url'], 'url')
             event = event_page['event']
-            raise DropItem('Event %s already in database' % item['ra_url'])
+            #raise DropItem('Event %s already in database' % item['ra_url'])
         
         # If event and event page dont exist yet:
         except IOError:
@@ -173,11 +179,13 @@ class ArtistPipeline(object):
         
         return performance
             
-    def insert_artist(self, artist):
+    def insert_artist(self, artist_item):
+        
+        insert_artist_page = self.insert_artist_page
         
         try:
-            artist_page = db.get_single('artist_page', artist['ra_url'], 'url')
-            artist = artist_page['artist']
+            db_artist_page = db.get_single('artist_page', artist_item['ra_url'], 'url')
+            db_artist = db_artist_page['artist']
         
         # If artist and artist page dont exist yet:
         except IOError:
@@ -185,23 +193,53 @@ class ArtistPipeline(object):
             # Obligatory fields:
             try:
                 new_artist = {
-                'name': artist['name'],
+                'name': artist_item['name'],
                 'source_id': ra['id'],
                 'last_modified': datetime.today().isoformat()}
-
-                new_artist_page = {
-                'url': artist['ra_url'],
-                'third_party_id': ra['id']}
             
             except KeyError as key_error:
                 key = key_error.message
-                self.log('Couldnt add artist %s because field was missing: %s', (artist['ra_url'], key))
+                #self.log('Couldnt add artist %s because field was missing: %s', (artist['ra_url'], key))
                 return None
             
-            artist = db.insert_dict('artist', new_artist)
-            # Insert Artist Page
-            new_artist_page['artist_id'] = artist['id']
-            artist_page = db.insert_dict('artist_page', new_artist_page)
-            #db.append_child('artist', artist, 'pages', new_artist_page)
+            db_artist = db.insert_dict('artist', new_artist)
+            pages = [('ra_url', ra), ('sc_url', sc)]
+            for url_field, tp in pages:
+                try:
+                    insert_artist_page(artist_item, url_field, tp, db_artist)
+                except:
+                    raise
+        
+        return db_artist
+                        
+    def insert_artist_page(self, artist_item, url_field, third_party, db_artist):
+        
+        def _prepare_url(url, tp):
+            if tp['name'] == 'SoundCloud':
+                url = ''.join(url.split('www.'))
+            return url
+        
+        try:
+            url = _prepare_url(artist_item[url_field], third_party)
+                       
+            try: 
+                db_artist_page = db.get_single('artist_page', url, 'url')
+
+            except IOError:
+
+                artist_id = db_artist['id']
+                third_party_id = third_party['id']
+                
+                new_artist_page = {
+                'url': url,
+                'third_party_id': third_party_id,
+                'artist_id': artist_id}
+                log.msg('inserting page %s' % str(new_artist_page))
+                db_artist_page = db.insert_dict('artist_page', new_artist_page)
             
-        return artist
+        except KeyError:
+            pass
+        
+        
+
+                

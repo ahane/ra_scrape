@@ -1,0 +1,121 @@
+2014-10-29 14:41:16+0100 [scrapy] INFO: Scrapy 0.24.4 started (bot: ra)
+2014-10-29 14:41:16+0100 [scrapy] INFO: Optional features available: ssl, http11, boto
+2014-10-29 14:41:16+0100 [scrapy] INFO: Overridden settings: {'NEWSPIDER_MODULE': 'ra.spiders', 'SPIDER_MODULES': ['ra.spiders'], 'LOG_FILE': 'log', 'BOT_NAME': 'ra'}
+2014-10-29 14:41:16+0100 [scrapy] INFO: Enabled extensions: LogStats, TelnetConsole, CloseSpider, WebService, CoreStats, SpiderState
+2014-10-29 14:41:17+0100 [scrapy] INFO: Enabled downloader middlewares: HttpAuthMiddleware, DownloadTimeoutMiddleware, UserAgentMiddleware, RetryMiddleware, DefaultHeadersMiddleware, MetaRefreshMiddleware, HttpCompressionMiddleware, RedirectMiddleware, CookiesMiddleware, ChunkedTransferMiddleware, DownloaderStats
+2014-10-29 14:41:17+0100 [scrapy] INFO: Enabled spider middlewares: HttpErrorMiddleware, OffsiteMiddleware, RefererMiddleware, UrlLengthMiddleware, DepthMiddleware
+2014-10-29 14:41:17+0100 [scrapy] INFO: Enabled item pipelines: VenuePipeline, EventPipeline, ArtistPipeline
+2014-10-29 14:41:17+0100 [event_spider] INFO: Spider opened
+2014-10-29 14:41:17+0100 [event_spider] INFO: Crawled 0 pages (at 0 pages/min), scraped 0 items (at 0 items/min)
+2014-10-29 14:41:17+0100 [scrapy] DEBUG: Telnet console listening on 127.0.0.1:6023
+2014-10-29 14:41:17+0100 [scrapy] DEBUG: Web service listening on 127.0.0.1:6080
+2014-10-29 14:41:17+0100 [event_spider] DEBUG: Crawled (200) <GET http://www.residentadvisor.net/events.aspx?ai=34&v=day&mn=10&yr=2014&dy=29> (referer: None)
+2014-10-29 14:41:18+0100 [event_spider] DEBUG: Crawled (200) <GET http://www.residentadvisor.net/event.aspx?649125> (referer: http://www.residentadvisor.net/events.aspx?ai=34&v=day&mn=10&yr=2014&dy=29)
+2014-10-29 14:41:18+0100 [event_spider] DEBUG: Crawled (200) <GET http://www.residentadvisor.net/event.aspx?641393> (referer: http://www.residentadvisor.net/events.aspx?ai=34&v=day&mn=10&yr=2014&dy=29)
+2014-10-29 14:41:19+0100 [event_spider] DEBUG: Crawled (200) <GET http://www.residentadvisor.net/event.aspx?643153> (referer: http://www.residentadvisor.net/events.aspx?ai=34&v=day&mn=10&yr=2014&dy=29)
+2014-10-29 14:41:20+0100 [event_spider] DEBUG: Crawled (200) <GET http://www.residentadvisor.net/event.aspx?648727> (referer: http://www.residentadvisor.net/events.aspx?ai=34&v=day&mn=10&yr=2014&dy=29)
+2014-10-29 14:41:20+0100 [event_spider] DEBUG: Crawled (200) <GET http://www.residentadvisor.net/event.aspx?644996> (referer: http://www.residentadvisor.net/events.aspx?ai=34&v=day&mn=10&yr=2014&dy=29)
+2014-10-29 14:41:21+0100 [event_spider] DEBUG: Crawled (200) <GET http://www.residentadvisor.net/event.aspx?640134> (referer: http://www.residentadvisor.net/events.aspx?ai=34&v=day&mn=10&yr=2014&dy=29)
+2014-10-29 14:41:21+0100 [event_spider] DEBUG: Crawled (200) <GET http://www.residentadvisor.net/event.aspx?627694> (referer: http://www.residentadvisor.net/events.aspx?ai=34&v=day&mn=10&yr=2014&dy=29)
+2014-10-29 14:41:22+0100 [event_spider] DEBUG: Crawled (200) <GET http://www.residentadvisor.net/event.aspx?633319> (referer: http://www.residentadvisor.net/events.aspx?ai=34&v=day&mn=10&yr=2014&dy=29)
+2014-10-29 14:41:23+0100 [event_spider] DEBUG: Crawled (200) <GET http://www.residentadvisor.net/event.aspx?645099> (referer: http://www.residentadvisor.net/events.aspx?ai=34&v=day&mn=10&yr=2014&dy=29)
+2014-10-29 14:41:23+0100 [event_spider] DEBUG: Crawled (200) <GET http://www.residentadvisor.net/event.aspx?647573> (referer: http://www.residentadvisor.net/events.aspx?ai=34&v=day&mn=10&yr=2014&dy=29)
+2014-10-29 14:41:24+0100 [event_spider] DEBUG: Crawled (200) <GET http://www.residentadvisor.net/event.aspx?649280> (referer: http://www.residentadvisor.net/events.aspx?ai=34&v=day&mn=10&yr=2014&dy=29)
+2014-10-29 14:41:26+0100 [event_spider] DEBUG: Crawled (200) <GET http://www.residentadvisor.net/event.aspx?638754> (referer: http://www.residentadvisor.net/events.aspx?ai=34&v=day&mn=10&yr=2014&dy=29)
+2014-10-29 14:41:28+0100 [event_spider] DEBUG: Crawled (200) <GET http://www.residentadvisor.net/event.aspx?636029> (referer: http://www.residentadvisor.net/events.aspx?ai=34&v=day&mn=10&yr=2014&dy=29)
+2014-10-29 14:41:28+0100 [event_spider] INFO: Closing spider (finished)
+2014-10-29 14:41:28+0100 [event_spider] INFO: Dumping Scrapy stats:
+	{'downloader/request_bytes': 5153,
+	 'downloader/request_count': 14,
+	 'downloader/request_method_count/GET': 14,
+	 'downloader/response_bytes': 386078,
+	 'downloader/response_count': 14,
+	 'downloader/response_status_count/200': 14,
+	 'finish_reason': 'finished',
+	 'finish_time': datetime.datetime(2014, 10, 29, 13, 41, 28, 293959),
+	 'log_count/DEBUG': 16,
+	 'log_count/INFO': 7,
+	 'request_depth_max': 1,
+	 'response_received_count': 14,
+	 'scheduler/dequeued': 14,
+	 'scheduler/dequeued/memory': 14,
+	 'scheduler/enqueued': 14,
+	 'scheduler/enqueued/memory': 14,
+	 'start_time': datetime.datetime(2014, 10, 29, 13, 41, 17, 257336)}
+2014-10-29 14:41:28+0100 [event_spider] INFO: Spider closed (finished)
+2014-10-29 14:43:10+0100 [scrapy] INFO: Scrapy 0.24.4 started (bot: ra)
+2014-10-29 14:43:10+0100 [scrapy] INFO: Optional features available: ssl, http11, boto
+2014-10-29 14:43:10+0100 [scrapy] INFO: Overridden settings: {'NEWSPIDER_MODULE': 'ra.spiders', 'SPIDER_MODULES': ['ra.spiders'], 'LOG_FILE': 'log', 'BOT_NAME': 'ra'}
+2014-10-29 14:43:10+0100 [scrapy] INFO: Enabled extensions: LogStats, TelnetConsole, CloseSpider, WebService, CoreStats, SpiderState
+2014-10-29 14:43:11+0100 [scrapy] INFO: Enabled downloader middlewares: HttpAuthMiddleware, DownloadTimeoutMiddleware, UserAgentMiddleware, RetryMiddleware, DefaultHeadersMiddleware, MetaRefreshMiddleware, HttpCompressionMiddleware, RedirectMiddleware, CookiesMiddleware, ChunkedTransferMiddleware, DownloaderStats
+2014-10-29 14:43:11+0100 [scrapy] INFO: Enabled spider middlewares: HttpErrorMiddleware, OffsiteMiddleware, RefererMiddleware, UrlLengthMiddleware, DepthMiddleware
+2014-10-29 14:43:11+0100 [scrapy] INFO: Enabled item pipelines: VenuePipeline, EventPipeline, ArtistPipeline
+2014-10-29 14:43:11+0100 [event_spider] INFO: Spider opened
+2014-10-29 14:43:11+0100 [event_spider] INFO: Crawled 0 pages (at 0 pages/min), scraped 0 items (at 0 items/min)
+2014-10-29 14:43:11+0100 [scrapy] DEBUG: Telnet console listening on 127.0.0.1:6023
+2014-10-29 14:43:11+0100 [scrapy] DEBUG: Web service listening on 127.0.0.1:6080
+2014-10-29 14:43:12+0100 [event_spider] DEBUG: Crawled (200) <GET http://www.residentadvisor.net/events.aspx?ai=34&v=day&mn=10&yr=2014&dy=29> (referer: None)
+2014-10-29 14:43:12+0100 [event_spider] DEBUG: Crawled (200) <GET http://www.residentadvisor.net/event.aspx?649125> (referer: http://www.residentadvisor.net/events.aspx?ai=34&v=day&mn=10&yr=2014&dy=29)
+2014-10-29 14:43:13+0100 [event_spider] DEBUG: Crawled (200) <GET http://www.residentadvisor.net/event.aspx?641393> (referer: http://www.residentadvisor.net/events.aspx?ai=34&v=day&mn=10&yr=2014&dy=29)
+2014-10-29 14:43:14+0100 [event_spider] DEBUG: Crawled (200) <GET http://www.residentadvisor.net/event.aspx?636029> (referer: http://www.residentadvisor.net/events.aspx?ai=34&v=day&mn=10&yr=2014&dy=29)
+2014-10-29 14:43:14+0100 [event_spider] DEBUG: Crawled (200) <GET http://www.residentadvisor.net/event.aspx?648727> (referer: http://www.residentadvisor.net/events.aspx?ai=34&v=day&mn=10&yr=2014&dy=29)
+2014-10-29 14:43:15+0100 [event_spider] DEBUG: Crawled (200) <GET http://www.residentadvisor.net/event.aspx?627694> (referer: http://www.residentadvisor.net/events.aspx?ai=34&v=day&mn=10&yr=2014&dy=29)
+2014-10-29 14:43:16+0100 [event_spider] DEBUG: Crawled (200) <GET http://www.residentadvisor.net/event.aspx?645099> (referer: http://www.residentadvisor.net/events.aspx?ai=34&v=day&mn=10&yr=2014&dy=29)
+2014-10-29 14:43:17+0100 [event_spider] DEBUG: Crawled (200) <GET http://www.residentadvisor.net/event.aspx?640134> (referer: http://www.residentadvisor.net/events.aspx?ai=34&v=day&mn=10&yr=2014&dy=29)
+2014-10-29 14:43:17+0100 [event_spider] DEBUG: Crawled (200) <GET http://www.residentadvisor.net/event.aspx?643153> (referer: http://www.residentadvisor.net/events.aspx?ai=34&v=day&mn=10&yr=2014&dy=29)
+2014-10-29 14:43:18+0100 [event_spider] DEBUG: Crawled (200) <GET http://www.residentadvisor.net/event.aspx?644996> (referer: http://www.residentadvisor.net/events.aspx?ai=34&v=day&mn=10&yr=2014&dy=29)
+2014-10-29 14:43:19+0100 [event_spider] DEBUG: Crawled (200) <GET http://www.residentadvisor.net/event.aspx?638754> (referer: http://www.residentadvisor.net/events.aspx?ai=34&v=day&mn=10&yr=2014&dy=29)
+2014-10-29 14:43:19+0100 [event_spider] DEBUG: Crawled (200) <GET http://www.residentadvisor.net/event.aspx?649280> (referer: http://www.residentadvisor.net/events.aspx?ai=34&v=day&mn=10&yr=2014&dy=29)
+2014-10-29 14:43:20+0100 [event_spider] DEBUG: Crawled (200) <GET http://www.residentadvisor.net/event.aspx?633319> (referer: http://www.residentadvisor.net/events.aspx?ai=34&v=day&mn=10&yr=2014&dy=29)
+2014-10-29 14:43:21+0100 [event_spider] DEBUG: Crawled (200) <GET http://www.residentadvisor.net/event.aspx?647573> (referer: http://www.residentadvisor.net/events.aspx?ai=34&v=day&mn=10&yr=2014&dy=29)
+2014-10-29 14:43:22+0100 [event_spider] INFO: Closing spider (finished)
+2014-10-29 14:43:22+0100 [event_spider] INFO: Dumping Scrapy stats:
+	{'downloader/request_bytes': 5153,
+	 'downloader/request_count': 14,
+	 'downloader/request_method_count/GET': 14,
+	 'downloader/response_bytes': 386080,
+	 'downloader/response_count': 14,
+	 'downloader/response_status_count/200': 14,
+	 'finish_reason': 'finished',
+	 'finish_time': datetime.datetime(2014, 10, 29, 13, 43, 22, 52118),
+	 'log_count/DEBUG': 16,
+	 'log_count/INFO': 7,
+	 'request_depth_max': 1,
+	 'response_received_count': 14,
+	 'scheduler/dequeued': 14,
+	 'scheduler/dequeued/memory': 14,
+	 'scheduler/enqueued': 14,
+	 'scheduler/enqueued/memory': 14,
+	 'start_time': datetime.datetime(2014, 10, 29, 13, 43, 11, 571693)}
+2014-10-29 14:43:22+0100 [event_spider] INFO: Spider closed (finished)
+2014-10-29 14:55:42+0100 [scrapy] INFO: Scrapy 0.24.4 started (bot: ra)
+2014-10-29 14:55:42+0100 [scrapy] INFO: Optional features available: ssl, http11, boto
+2014-10-29 14:55:42+0100 [scrapy] INFO: Overridden settings: {'NEWSPIDER_MODULE': 'ra.spiders', 'SPIDER_MODULES': ['ra.spiders'], 'LOG_FILE': 'log', 'BOT_NAME': 'ra'}
+2014-10-29 14:55:42+0100 [scrapy] INFO: Enabled extensions: LogStats, TelnetConsole, CloseSpider, WebService, CoreStats, SpiderState
+2014-10-29 14:55:43+0100 [scrapy] INFO: Enabled downloader middlewares: HttpAuthMiddleware, DownloadTimeoutMiddleware, UserAgentMiddleware, RetryMiddleware, DefaultHeadersMiddleware, MetaRefreshMiddleware, HttpCompressionMiddleware, RedirectMiddleware, CookiesMiddleware, ChunkedTransferMiddleware, DownloaderStats
+2014-10-29 14:55:43+0100 [scrapy] INFO: Enabled spider middlewares: HttpErrorMiddleware, OffsiteMiddleware, RefererMiddleware, UrlLengthMiddleware, DepthMiddleware
+2014-10-29 14:55:44+0100 [scrapy] INFO: Enabled item pipelines: VenuePipeline, EventPipeline, ArtistPipeline
+2014-10-29 14:55:44+0100 [event_spider] INFO: Spider opened
+2014-10-29 14:55:44+0100 [event_spider] INFO: Crawled 0 pages (at 0 pages/min), scraped 0 items (at 0 items/min)
+2014-10-29 14:55:44+0100 [scrapy] DEBUG: Telnet console listening on 127.0.0.1:6023
+2014-10-29 14:55:44+0100 [scrapy] DEBUG: Web service listening on 127.0.0.1:6080
+2014-10-29 14:56:08+0100 [event_spider] DEBUG: Crawled (200) <GET http://www.residentadvisor.net/dj/thnts> (referer: None)
+2014-10-29 14:56:08+0100 [event_spider] INFO: Closing spider (finished)
+2014-10-29 14:56:08+0100 [event_spider] INFO: Dumping Scrapy stats:
+	{'downloader/request_bytes': 230,
+	 'downloader/request_count': 1,
+	 'downloader/request_method_count/GET': 1,
+	 'downloader/response_bytes': 14841,
+	 'downloader/response_count': 1,
+	 'downloader/response_status_count/200': 1,
+	 'finish_reason': 'finished',
+	 'finish_time': datetime.datetime(2014, 10, 29, 13, 56, 8, 642926),
+	 'log_count/DEBUG': 3,
+	 'log_count/INFO': 7,
+	 'response_received_count': 1,
+	 'scheduler/dequeued': 1,
+	 'scheduler/dequeued/memory': 1,
+	 'scheduler/enqueued': 1,
+	 'scheduler/enqueued/memory': 1,
+	 'start_time': datetime.datetime(2014, 10, 29, 13, 55, 44, 238850)}
+2014-10-29 14:56:08+0100 [event_spider] INFO: Spider closed (finished)
