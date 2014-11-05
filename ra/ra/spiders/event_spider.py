@@ -12,15 +12,16 @@ from collections import defaultdict
 BASE_URL = 'http://www.residentadvisor.net'
 LISTINGS_EXT = '/events.aspx?'
 BERLIN_AI = 34
-#TODAY = datetime.date.today()
-TODAY = datetime.date(2014, 9, 29)
-
-listing_params = {'ai': BERLIN_AI,
+TODAY = datetime.date.today()
+dates = [TODAY, TODAY + datetime.timedelta(1), TODAY + datetime.timedelta(2)]
+listings_params = [{'ai': BERLIN_AI,
                   'v': 'day',
-                  'mn': TODAY.month,
-                  'yr': TODAY.year,
-                  'dy': TODAY.day}
-today_events_url = BASE_URL + LISTINGS_EXT + urllib.urlencode(listing_params)
+                  'mn': d.month,
+                  'yr': d.year,
+                  'dy': d.day} for d in dates]
+
+
+listings_urls = [BASE_URL + LISTINGS_EXT + urllib.urlencode(p) for p in listings_params]
 
 
 # Helper Functions
@@ -119,7 +120,7 @@ def join_times_dates(start_date, end_date, start_time, end_time):
         return dt
     
     if not start_time:
-        start_time  = datetime.datetime.strptime(DEFAULT_START_TIME, '%H:%M').time()
+        start_time  = datetime.strptime(DEFAULT_START_TIME, '%H:%M').time()
     
     start_datetime = datetime_from_date_time(start_date, start_time)
     
@@ -151,8 +152,8 @@ def join_times_dates(start_date, end_date, start_time, end_time):
 class RAEventSpider(CrawlSpider):
     name = 'event_spider'
     allowed_domains = [BASE_URL, 'www.residentadvisor.net', 'api.soundcloud.com']
-    start_urls = [today_events_url]
-    locale = listing_params['ai']
+    start_urls = listings_urls
+    locale = listings_params[0]['ai']
     rules = [
         Rule(LinkExtractor(allow=(r'\/event\.aspx\?',), canonicalize=False),
              callback='parse_event'),
