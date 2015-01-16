@@ -32,10 +32,10 @@ class VenuePipeline(object):
         try:
             club = item['club']
         except KeyError:
-            raise DropItem('Event %s doesnt have a venue' % item['ra_url'])
+            raise DropItem('Event %s doesnt have a venue' % item['url'])
         
         try:
-            location = db.get_single('locations', club['ra_url'], 'url')
+            location = db.get_single('locations', club['url'], 'url')
             #venue = venue_page['venue']
         
         # If venue and venue page dont exist yet:
@@ -50,13 +50,13 @@ class VenuePipeline(object):
                 'lon': club['lon']}
 
                 new_location_link = {
-                'url': club['ra_url'],
+                'url': club['url'],
                 'third_party': ra['id']}
                 #'third_party': ra}
                 
             except KeyError as key_error:
                 key = key_error.message
-                raise DropItem('Venue %s misses an obligatory field: %s' % (club['ra_url'], key))
+                raise DropItem('Venue %s misses an obligatory field: %s' % (club['url'], key))
                 
             # Insert Venue
             location = db.insert_dict('locations', new_location)
@@ -75,12 +75,12 @@ class EventPipeline(object):
     def process_item(self, item, spider):
 
         try:
-            happening = db.get_single('happenings', item['ra_url'], 'url')
+            happening = db.get_single('happenings', item['url'], 'url')
                    
         # If event and event page dont exist yet:
         except IOError:
             
-            location = db.get_single('locations', item['club']['ra_url'], 'url')
+            location = db.get_single('locations', item['club']['url'], 'url')
             #location = item['location']
             
             # Obligatory fields:
@@ -92,12 +92,12 @@ class EventPipeline(object):
                 'location': location['id']}
 
                 new_happening_link = {
-                'url': item['ra_url'],
+                'url': item['url'],
                 'third_party': ra['id'],}
                 
             except KeyError as key_error:
                 key = key_error.message
-                raise DropItem('Event %s misses an obligatory field' % (item['ra_url'], key))
+                raise DropItem('Event %s misses an obligatory field' % (item['url'], key))
                 
             # Insert Event
             happening = db.insert_dict('happenings', new_happening)
@@ -126,7 +126,7 @@ class ArtistPipeline(object):
         db_artists = [a for a in processed_artists if a] #Filter possbile `None`s
         #item['db_artists'] = db_artists
         
-        happening = db.get_single('happenings', item['ra_url'], 'url')
+        happening = db.get_single('happenings', item['url'], 'url')
         db_performances = [insert_performance(happening, a) for a in db_artists]
         #item['db_performances'] = db_performances
         
@@ -149,7 +149,7 @@ class ArtistPipeline(object):
         
         
         try:
-            artist = db.get_single('artists', artist_item['ra_url'], 'url')
+            artist = db.get_single('artists', artist_item['url'], 'url')
         
         # If artist and artist page dont exist yet:
         except IOError:
@@ -157,7 +157,7 @@ class ArtistPipeline(object):
             # Obligatory fields:
             new_artist = {'name': artist_item['name']}
             artist = db.insert_dict('artists', new_artist)
-            pages = [('ra_url', ra), ('sc_url', sc)]
+            pages = [('url', ra), ('sc_url', sc)]
             
             for url_field, tp in pages:
                 self.insert_artist_link(artist_item, url_field, tp, artist)
