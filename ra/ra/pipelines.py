@@ -3,7 +3,6 @@
 # Don't forget to add your pipeline to the ITEM_PIPELINES setting
 # See: http://doc.scrapy.org/en/latest/topics/item-pipeline.html
 from scrapy import log
-from datetime import datetime
 from scrapy.exceptions import DropItem
 from hinterteil import Hinterteil
 import settings
@@ -11,38 +10,18 @@ import settings
 db = Hinterteil(settings.DATABASE_URL)
 
 try:
-    ra = db.get_single('third_party', 'Resident Advisor', 'name')
+    ra = db.get_single('thirdparties', 'http://www.residentadvisor.net/', 'url')
     
 except IOError:
-    ra = db.insert_dict('third_party', {'name': 'Resident Advisor', 'url': 'http://www.residentadvisor.net/'})
+    ra = db.insert_dict('thirdparties', {'name': 'Resident Advisor', 'url': 'http://www.residentadvisor.net/'})
     
 try:
-    sc = db.get_single('third_party', 'SoundCloud', 'name')
+    sc = db.get_single('thirdparties', 'https://soundcloud.com/', 'url')
     
 except IOError:
-    sc = db.insert_dict('third_party', {'name': 'SoundCloud', 'url': 'https://soundcloud.com/'})
+    sc = db.insert_dict('thirdparties', {'name': 'SoundCloud', 'url': 'https://soundcloud.com/'})
 
-try:
-    berlin = db.get_single('region', 'Berlin', 'name')
-    
-except IOError:
-    berlin = db.insert_dict('region',
-                         {'name': 'Berlin', 
-                          'country': 'DE',
-                          'lat': 52.498757, 
-                          'lon': 13.418652})
 
-ra_regions = {34: berlin}
-    
-try:
-    techno = db.get_single('performance_kind', 'Electronic Music', 'name')
-    
-except:
-    techno = db.insert_dict('performance_kind', {'name': 'Electronic Music'})
-    
-genres = {'Electronic Music': techno}
-
-log.start()
 class VenuePipeline(object):
     
     def __init__(self):
@@ -56,27 +35,23 @@ class VenuePipeline(object):
             raise DropItem('Event %s doesnt have a venue' % item['ra_url'])
         
         try:
-            venue_page = db.get_single('venue_page', club['ra_url'], 'url')
-            venue = venue_page['venue']
+            location = db.get_single('locations', club['ra_url'], 'url')
+            #venue = venue_page['venue']
         
         # If venue and venue page dont exist yet:
         except IOError:
             
-            region = ra_regions[club['ra_locale_id']]
             # Obligatory fields:
             try:
-                new_venue = {
+                new_location = {
                 'name': club['name'],
-                'adress_string': club['adress'],
+                'address': club['adress'],
                 'lat': club['lat'],
-                'lon': club['lon'],
-                'region_id': region['id'],
-                'last_modified': datetime.today().isoformat(),
-                'source_id': ra['id']}
+                'lon': club['lon']}
 
-                new_venue_page = {
+                new_location_link = {
                 'url': club['ra_url'],
-                'third_party_id': ra['id']}
+                'third_party': ra['id']}
                 #'third_party': ra}
                 
             except KeyError as key_error:
@@ -84,15 +59,12 @@ class VenuePipeline(object):
                 raise DropItem('Venue %s misses an obligatory field: %s' % (club['ra_url'], key))
                 
             # Insert Venue
-            venue = db.insert_dict('venue', new_venue)
+            location = db.insert_dict('locations', new_location)
             # Insert Venue Page
-            new_venue_page['venue_id'] = venue['id']
-            #new_venue_page['venue'] = venue
-            
-            #TODO figure out why we have to use ID instead of the objects..
-            venue_page = db.insert_dict('venue_page', new_venue_page)
-            
-                   
+            new_location_link['location'] = location['id']        
+
+            db.insert_dict('locations/links', new_location_link)
+        #item['location'] = location
         return item
     
 class EventPipeline(object):
@@ -101,41 +73,37 @@ class EventPipeline(object):
         pass
     
     def process_item(self, item, spider):
-        
-        
+
         try:
-            event_page = db.get_single('event_page', item['ra_url'], 'url')
-            event = event_page['event']
-            #raise DropItem('Event %s already in database' % item['ra_url'])
-        
+            happening = db.get_single('happenings', item['ra_url'], 'url')
+                   
         # If event and event page dont exist yet:
         except IOError:
             
-            venue = db.get_single('venue_page', item['club']['ra_url'], 'url')['venue']
+            location = db.get_single('locations', item['club']['ra_url'], 'url')
+            #location = item['location']
             
             # Obligatory fields:
             try:
-                new_event = {
+                new_happening = {
                 'name': item['name'],
-                'start_datetime': item['start_datetime'],
-                'end_datetime': item['end_datetime'],
-                'source_id': ra['id'],
-                'venue_id': venue['id'],
-                'last_modified': datetime.today().isoformat()}
+                'start': item['start_datetime'],
+                'stop': item['end_datetime'],
+                'location': location['id']}
 
-                new_event_page = {
+                new_happening_link = {
                 'url': item['ra_url'],
-                'third_party_id': ra['id'],}
+                'third_party': ra['id'],}
                 
             except KeyError as key_error:
                 key = key_error.message
                 raise DropItem('Event %s misses an obligatory field' % (item['ra_url'], key))
                 
             # Insert Event
-            event = db.insert_dict('event', new_event)
+            happening = db.insert_dict('happenings', new_happening)
             # Insert Event Page
-            new_event_page['event_id'] = event['id']
-            event_page = db.insert_dict('event_page', new_event_page)
+            new_happening_link['happening'] = happening['id']
+            db.insert_dict('happenings/links', new_happening_link)
             #db.append_child('event', event, 'pages', new_event_page)
             
         #item['db_event'] = event        
@@ -158,61 +126,45 @@ class ArtistPipeline(object):
         db_artists = [a for a in processed_artists if a] #Filter possbile `None`s
         #item['db_artists'] = db_artists
         
-        event = db.get_single('event_page', item['ra_url'], 'url')['event']
-        db_performances = [insert_performance(a, event) for a in db_artists]
+        happening = db.get_single('happenings', item['ra_url'], 'url')
+        db_performances = [insert_performance(happening, a) for a in db_artists]
         #item['db_performances'] = db_performances
         
         return item
     
-    def insert_performance(item, event, artist):
+    def insert_performance(item, happening, artist):
         ''' If the event didn't exist before, we can assume
             the event hasn't been scraped yet. We don't have
             to check for already existing performances.
         '''
         
-        new_performance = {'artist_id': artist['id'],
-                           'event_id': event['id'],
-                           'kind_id': genres['Electronic Music']['id']}
+        new_performance = {'artist': artist['id'],
+                           'happening': happening['id']}
+                           #'kind_id': genres['Electronic Music']['id']}
         
-        performance = db.insert_dict('performance', new_performance)
-        #db.append_child('event', event, 'performances', new_performance)
-        
+        performance = db.insert_dict('performances', new_performance)
         return performance
             
     def insert_artist(self, artist_item):
         
-        insert_artist_page = self.insert_artist_page
         
         try:
-            db_artist_page = db.get_single('artist_page', artist_item['ra_url'], 'url')
-            db_artist = db_artist_page['artist']
+            artist = db.get_single('artists', artist_item['ra_url'], 'url')
         
         # If artist and artist page dont exist yet:
         except IOError:
             
             # Obligatory fields:
-            try:
-                new_artist = {
-                'name': artist_item['name'],
-                'source_id': ra['id'],
-                'last_modified': datetime.today().isoformat()}
-            
-            except KeyError as key_error:
-                key = key_error.message
-                #self.log('Couldnt add artist %s because field was missing: %s', (artist['ra_url'], key))
-                return None
-            
-            db_artist = db.insert_dict('artist', new_artist)
+            new_artist = {'name': artist_item['name']}
+            artist = db.insert_dict('artists', new_artist)
             pages = [('ra_url', ra), ('sc_url', sc)]
+            
             for url_field, tp in pages:
-                try:
-                    insert_artist_page(artist_item, url_field, tp, db_artist)
-                except:
-                    raise
-        
-        return db_artist
+                self.insert_artist_link(artist_item, url_field, tp, artist)
+            
+        return artist
                         
-    def insert_artist_page(self, artist_item, url_field, third_party, db_artist):
+    def insert_artist_link(self, artist_item, url_field, third_party, artist):
         
         def _prepare_url(url, tp):
             if tp['name'] == 'SoundCloud':
@@ -223,19 +175,16 @@ class ArtistPipeline(object):
             url = _prepare_url(artist_item[url_field], third_party)
                        
             try: 
-                db_artist_page = db.get_single('artist_page', url, 'url')
+                db.get_single('artists/links', url, 'url')
 
             except IOError:
-
-                artist_id = db_artist['id']
-                third_party_id = third_party['id']
-                
-                new_artist_page = {
+               
+                new_artist_link = {
                 'url': url,
-                'third_party_id': third_party_id,
-                'artist_id': artist_id}
-                log.msg('inserting page %s' % str(new_artist_page))
-                db_artist_page = db.insert_dict('artist_page', new_artist_page)
+                'third_party': third_party['id'],
+                'artist': artist['id']}
+                log.msg('inserting page %s' % str(new_artist_link))
+                db.insert_dict('artists/links', new_artist_link)
             
         except KeyError:
             pass

@@ -5,14 +5,16 @@ scrapy.contrib.linkextractors.lxmlhtml.LxmlLinkExtractor
 from ra.items import Event, Club, Performance, Artist
 import urllib
 import datetime
+import pytz
 import re
-import json
 import geocoder
 from collections import defaultdict
 BASE_URL = 'http://www.residentadvisor.net'
 LISTINGS_EXT = '/events.aspx?'
 BERLIN_AI = 34
 TODAY = datetime.date.today()
+LOCALE_TZ = {34: 'Europe/Berlin'}
+#dates = [TODAY]
 dates = [TODAY, TODAY + datetime.timedelta(1), TODAY + datetime.timedelta(2)]
 listings_params = [{'ai': BERLIN_AI,
                   'v': 'day',
@@ -25,7 +27,7 @@ listings_urls = [BASE_URL + LISTINGS_EXT + urllib.urlencode(p) for p in listings
 
 
 # Helper Functions
-def datetimes_from_date_div(date_div):
+def datetimes_from_date_div(date_div, locale):
     ''' Extracts start and end datetimes from
         the resident advisor date div
     '''
@@ -38,8 +40,8 @@ def datetimes_from_date_div(date_div):
         end_date = date_from_events_url(links[-1])
     
     start_time, end_time = times_from_str(date_div.extract())
-    
-    start_datetime, end_datetime = join_times_dates(start_date, end_date, start_time, end_time)
+    tzstring = LOCALE_TZ[locale]
+    start_datetime, end_datetime = join_times_dates(start_date, end_date, start_time, end_time, tzstring)
     
     return start_datetime, end_datetime
 
@@ -98,7 +100,7 @@ def times_from_str(string):
             pass
     return start_time, end_time
 
-def join_times_dates(start_date, end_date, start_time, end_time):
+def join_times_dates(start_date, end_date, start_time, end_time, tzstring):
     ''' Takes one or more dates and two times and turns them
         into a start datetime and an end datetime.
     '''    
@@ -117,7 +119,8 @@ def join_times_dates(start_date, end_date, start_time, end_time):
     
     def datetime_from_date_time(date, time):
         dt = datetime(date.year, date.month, date.day, time.hour, time.minute)
-        return dt
+        tz = pytz.timezone(tzstring)
+        return tz.localize(dt)
     
     if not start_time:
         start_time  = datetime.strptime(DEFAULT_START_TIME, '%H:%M').time()
@@ -178,7 +181,7 @@ class RAEventSpider(CrawlSpider):
         
         date_div = response.xpath("//div[text()='Date /']/..")[0]
         
-        start, end = datetimes_from_date_div(date_div)
+        start, end = datetimes_from_date_div(date_div, self.locale)
         event['start_datetime'], event['end_datetime'] = start.isoformat(), end.isoformat()
         event['artists'] = []
        
