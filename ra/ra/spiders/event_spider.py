@@ -145,13 +145,14 @@ class RAEventSpider(CrawlSpider):
     
     name = 'event_spider'
     allowed_domains = [BASE_URL, 'www.residentadvisor.net', 'api.soundcloud.com']
-    rules = [Rule(LinkExtractor(allow=(r'\/event\.aspx\?',), canonicalize=False),
+    rules = (
+        Rule(LinkExtractor(allow=(r'\/event\.aspx\?',), canonicalize=False),
                     callback='parse_event'),
-            ]
+    )
 
 
     def __init__(self, ra_locale=34, num_days=3, *args, **kwargs):
-        super(CrawlSpider, self).__init__(*args, **kwargs)
+        super(RAEventSpider, self).__init__(*args, **kwargs)
         
         today = datetime.date.today()
         dates = [today + timedelta(i) for i in range(num_days)]
