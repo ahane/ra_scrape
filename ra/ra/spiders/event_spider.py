@@ -5,28 +5,17 @@ scrapy.contrib.linkextractors.lxmlhtml.LxmlLinkExtractor
 from ra.items import Event, Club, Performance, Artist
 import urllib
 import datetime
+from datetime import timedelta
 import pytz
 import re
 import geocoder
-from collections import defaultdict
 BASE_URL = 'http://www.residentadvisor.net'
 LISTINGS_EXT = '/events.aspx?'
-BERLIN_AI = 34
-TODAY = datetime.date.today()
 LOCALE_TZ = {34: 'Europe/Berlin'}
-#dates = [TODAY]
-dates = [TODAY, TODAY + datetime.timedelta(1), TODAY + datetime.timedelta(2)]
-listings_params = [{'ai': BERLIN_AI,
-                  'v': 'day',
-                  'mn': d.month,
-                  'yr': d.year,
-                  'dy': d.day} for d in dates]
-
-
-listings_urls = [BASE_URL + LISTINGS_EXT + urllib.urlencode(p) for p in listings_params]
-
 
 # Helper Functions
+extract_digits_re = re.compile(r'(\d+)')
+
 def datetimes_from_date_div(date_div, locale):
     ''' Extracts start and end datetimes from
         the resident advisor date div
@@ -153,16 +142,28 @@ def join_times_dates(start_date, end_date, start_time, end_time, tzstring):
 
 # Actual Spider:
 class RAEventSpider(CrawlSpider):
+    
     name = 'event_spider'
     allowed_domains = [BASE_URL, 'www.residentadvisor.net', 'api.soundcloud.com']
-    start_urls = listings_urls
-    locale = listings_params[0]['ai']
-    rules = [
-        Rule(LinkExtractor(allow=(r'\/event\.aspx\?',), canonicalize=False),
-             callback='parse_event'),
-    ]
+    rules = [Rule(LinkExtractor(allow=(r'\/event\.aspx\?',), canonicalize=False),
+                    callback='parse_event'),
+            ]
 
-    extract_digits = re.compile(r'(\d+)')
+
+    def __init__(self, ra_locale=34, num_days=3, *args, **kwargs):
+        super(CrawlSpider, self).__init__(*args, **kwargs)
+        
+        today = datetime.date.today()
+        dates = [today + timedelta(i) for i in range(num_days)]
+        listings_params = [{'ai': ra_locale,
+                          'v': 'day',
+                          'mn': d.month,
+                          'yr': d.year,
+                          'dy': d.day} for d in dates]
+        self.locale = ra_locale
+        self.start_urls = [BASE_URL + LISTINGS_EXT + urllib.urlencode(p) for p in listings_params]
+        
+
      
     def parse_event(self, response):
         '''
@@ -173,7 +174,7 @@ class RAEventSpider(CrawlSpider):
         
         event = Event()
         event['ra_url'] = response.url    
-        event['ra_event_id'] = self.extract_digits.search(event['ra_url']).group(1)
+        event['ra_event_id'] = extract_digits_re.search(event['ra_url']).group(1)
         event['item_type'] = 'event'
         
         event_title = response.xpath("//div[@id = 'sectionHead']/h1/text()").extract()[0]
@@ -191,7 +192,7 @@ class RAEventSpider(CrawlSpider):
             club['ra_locale_id'] = self.locale
             club['ra_url'] = BASE_URL + '/' + club_link.xpath("@href").extract()[0]
             club['name'] = club_link.xpath("text()").extract()[0]
-            id_match = self.extract_digits.search(club['ra_url'])
+            id_match = extract_digits_re.search(club['ra_url'])
             #self.log(type(id_match))
             club['ra_club_id'] = id_match.group(1)
             club['adress'] = club_link.xpath("../text()").extract()[0]
