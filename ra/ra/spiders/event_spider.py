@@ -2,7 +2,7 @@ import scrapy
 from scrapy.contrib.spiders import CrawlSpider, Rule
 from scrapy.contrib.linkextractors import LinkExtractor
 scrapy.contrib.linkextractors.lxmlhtml.LxmlLinkExtractor
-from ra.items import Event, Club, Performance, Artist
+from ra.items import Happening, Location, Artist
 import urllib
 import datetime
 from datetime import timedelta
@@ -23,10 +23,10 @@ def datetimes_from_date_div(date_div, locale):
     
     links = date_div.xpath('a/@href').extract()
     num_date_links = len(links)
-    start_date = date_from_events_url(links[0])
+    start_date = date_from_happenings_url(links[0])
     end_date = None
     if num_date_links > 1:
-        end_date = date_from_events_url(links[-1])
+        end_date = date_from_happenings_url(links[-1])
     
     start_time, end_time = times_from_str(date_div.extract())
     tzstring = LOCALE_TZ[locale]
@@ -34,7 +34,7 @@ def datetimes_from_date_div(date_div, locale):
     
     return start_datetime, end_datetime
 
-def date_from_events_url(url):
+def date_from_happenings_url(url):
     from urlparse import parse_qs, urlparse
     from datetime import date
     date_dict = parse_qs(urlparse(url).query, keep_blank_values=True)
@@ -118,12 +118,12 @@ def join_times_dates(start_date, end_date, start_time, end_time, tzstring):
     
     
     # If we didn't receive a end_date and the end time is
-    # after the start time, the event ends on the same day.
+    # after the start time, the happening ends on the same day.
     if not end_date and same_day(start_time, end_time):
         end_date = start_date
     
     # If no end_date and end time is before start time
-    # the event ends one day after the start date
+    # the happening ends one day after the start date
     elif not end_date and not same_day(start_time, end_time):
         end_date = start_date + timedelta(1) #add one day
     
@@ -141,21 +141,21 @@ def join_times_dates(start_date, end_date, start_time, end_time, tzstring):
     return start_datetime, end_datetime
 
 # Actual Spider:
-class RAEventSpider(CrawlSpider):
+class RAHappeningSpider(CrawlSpider):
     
-    name = 'event_spider'
+    name = 'ra_crawler'
     allowed_domains = [BASE_URL, 'www.residentadvisor.net', 'api.soundcloud.com']
     rules = (
         Rule(LinkExtractor(allow=(r'\/event\.aspx\?',), canonicalize=False),
-                    callback='parse_event'),
+                    callback='parse_happening'),
     )
 
 
     def __init__(self, ra_locale=34, num_days=3, *args, **kwargs):
-        super(RAEventSpider, self).__init__(*args, **kwargs)
+        super(RAHappeningSpider, self).__init__(*args, **kwargs)
         
         today = datetime.date.today()
-        dates = [today + timedelta(i) for i in range(num_days)]
+        dates = [today + timedelta(i) for i in range(int(num_days))]
         listings_params = [{'ai': ra_locale,
                           'v': 'day',
                           'mn': d.month,
@@ -166,46 +166,44 @@ class RAEventSpider(CrawlSpider):
         
 
      
-    def parse_event(self, response):
+    def parse_happening(self, response):
         '''
             @url http://www.residentadvisor.net/events.aspx?ai=34&v=day&mn=10&yr=2014&dy=20
             @returns requests 5
             @returns items 1
         '''
         
-        event = Event()
-        event['ra_url'] = response.url    
-        event['ra_event_id'] = extract_digits_re.search(event['ra_url']).group(1)
-        event['item_type'] = 'event'
+        happening = Happening()
+        happening['url'] = response.url    
+        happening['identifier'] = extract_digits_re.search(happening['url']).group(1)
+        happening['item_type'] = 'happening'
         
-        event_title = response.xpath("//div[@id = 'sectionHead']/h1/text()").extract()[0]
-        event['name'] = re.match('(.+)\sat.+$', event_title).group(1) #remove 'at LOCATION'
+        happening_title = response.xpath("//div[@id = 'sectionHead']/h1/text()").extract()[0]
+        happening['name'] = re.match('(.+)\sat.+$', happening_title).group(1) #remove 'at LOCATION'
         
         date_div = response.xpath("//div[text()='Date /']/..")[0]
         
         start, end = datetimes_from_date_div(date_div, self.locale)
-        event['start_datetime'], event['end_datetime'] = start.isoformat(), end.isoformat()
-        event['artists'] = []
+        happening['start_datetime'], happening['end_datetime'] = start.isoformat(), end.isoformat()
+        happening['artists'] = []
        
-        club_link = response.xpath("//a[contains(@title, 'Club profile')]")
-        if club_link:
-            club = Club()
-            club['ra_locale_id'] = self.locale
-            club['ra_url'] = BASE_URL + '/' + club_link.xpath("@href").extract()[0]
-            club['name'] = club_link.xpath("text()").extract()[0]
-            id_match = extract_digits_re.search(club['ra_url'])
+        location_link = response.xpath("//a[contains(@title, 'Club profile')]")
+        if location_link:
+            location = Location()
+            location['ra_locale_id'] = self.locale
+            location['url'] = BASE_URL + '/' + location_link.xpath("@href").extract()[0]
+            location['name'] = location_link.xpath("text()").extract()[0]
+            id_match = extract_digits_re.search(location['url'])
             #self.log(type(id_match))
-            club['ra_club_id'] = id_match.group(1)
-            club['adress'] = club_link.xpath("../text()").extract()[0]
+            location['identifier'] = id_match.group(1)
+            location['address'] = location_link.xpath("../text()").extract()[0]
             
             ## Todo: move geocoding into sperate scraper
-            geocode = geocoder.google(club['adress'])
+            geocode = geocoder.google(location['address'])
             if geocode.status_description == 'OK':
+                location['lat'], location['lon'] = geocode.latlng
 
-                club['lat'] = geocode.latlng[0]
-                club['lon'] = geocode.latlng[1]
-            #event['ra_club_id'] = club['ra_club_id']
-            event['club'] = club
+            happening['location'] = location
         
         lineup_selector = response.css(".lineup").xpath("a")
         if lineup_selector:
@@ -214,35 +212,35 @@ class RAEventSpider(CrawlSpider):
                 artist = Artist()
                 url_ext = link_sel.xpath("@href").extract()[0]
                 if url_ext[:4] == "/dj/":
-                    artist['ra_url'] = BASE_URL + url_ext
+                    artist['url'] = BASE_URL + url_ext
                     artist['name'] = link_sel.xpath("text()").extract()[0]
-                    artist['ra_artist_id'] = url_ext.split("/")[2]
+                    artist['identifier'] = url_ext.split("/")[2]
                     
                     #step into RA artist page
-                    request = scrapy.Request(artist['ra_url'], callback=self.parse_artist_page)
-                    request.meta['event'] = event
+                    request = scrapy.Request(artist['url'], callback=self.parse_artist_page)
+                    request.meta['happening'] = happening
                     request.meta['artist'] = artist
                     request.meta['num_artists'] = num_artists
                     yield request
         else:
-            yield event
+            yield happening
     
     def parse_artist_page(self, response):
         
         artist = response.meta['artist']
-        event = response.meta['event']
+        happening = response.meta['happening']
         
         sc_link_sel = response.xpath("//a[contains(@href, 'http://www.soundcloud.com')][contains(text(), 'SoundCloud')]/@href")
         if sc_link_sel:
             artist['sc_url'] = sc_link_sel.extract()[0]
             artist['sc_user'] = artist['sc_url'].split('/')[-1]
         
-        event['artists'] = event['artists'] + [artist]
+        happening['artists'] = happening['artists'] + [artist]
         
-        if response.meta['num_artists'] == len(event['artists']):
+        if response.meta['num_artists'] == len(happening['artists']):
            # from scrapy.shell import inspect_response
            # inspect_response(response)
-            yield event    
+            yield happening    
     
     
 

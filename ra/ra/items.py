@@ -1,39 +1,34 @@
 import scrapy
 
-class Event(scrapy.Item):
+class Happening(scrapy.Item):
     #item_type = scrapy.Field(default='event')
     item_type = scrapy.Field()
-    ra_event_id = scrapy.Field()
-    ra_url = scrapy.Field()
+    identifier = scrapy.Field()
+    url = scrapy.Field()
     name = scrapy.Field()    
     start_datetime = scrapy.Field()
     end_datetime = scrapy.Field()
     #ra_club_id = scrapy.Field()
     
     #these fields are for a document-like serving
-    club = scrapy.Field()
+    location = scrapy.Field()
     artists = scrapy.Field()
     
-class Club(scrapy.Item):
+class Location(scrapy.Item):
     item_type = scrapy.Field(default='club')
-    ra_club_id = scrapy.Field()
-    ra_url = scrapy.Field()
+    identifier = scrapy.Field()
+    url = scrapy.Field()
     name = scrapy.Field()
-    adress = scrapy.Field()
+    address = scrapy.Field()
     lat = scrapy.Field()
     lon = scrapy.Field()
     ra_locale_id = scrapy.Field()
 
-class Performance(scrapy.Item):
-    item_type = scrapy.Field(default='performance')
-    ra_event_id = scrapy.Field()
-    sc_artist_id = scrapy.Field()
-    artist = scrapy.Field()
     
 class Artist(scrapy.Item):
     item_type = scrapy.Field(default='artist')
-    ra_artist_id = scrapy.Field()
-    ra_url = scrapy.Field()
+    identifier = scrapy.Field()
+    url = scrapy.Field()
     name = scrapy.Field()
     sc_user = scrapy.Field()
     sc_url = scrapy.Field()

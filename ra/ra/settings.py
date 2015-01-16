@@ -21,7 +21,7 @@ DATABASE = {'drivername': 'postgres',
 
 DATABASE_URL = 'http://localhost:8000/api/'
 ITEM_PIPELINES = {'ra.pipelines.VenuePipeline': 100,
-                  'ra.pipelines.EventPipeline': 200,
+                  'ra.pipelines.HappeningPipeline': 200,
                   'ra.pipelines.ArtistPipeline': 300}
 
 CRAWL_SETTINGS = {

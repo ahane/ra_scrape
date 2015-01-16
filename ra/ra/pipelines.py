@@ -30,13 +30,12 @@ class VenuePipeline(object):
     def process_item(self, item, spider):
         
         try:
-            club = item['club']
+            location = item['location']
         except KeyError:
-            raise DropItem('Event %s doesnt have a venue' % item['url'])
+            raise DropItem('happening %s doesnt have a venue' % item['url'])
         
         try:
-            location = db.get_single('locations', club['url'], 'url')
-            #venue = venue_page['venue']
+            db.get_single('locations', location['url'], 'url')
         
         # If venue and venue page dont exist yet:
         except IOError:
@@ -44,30 +43,31 @@ class VenuePipeline(object):
             # Obligatory fields:
             try:
                 new_location = {
-                'name': club['name'],
-                'address': club['adress'],
-                'lat': club['lat'],
-                'lon': club['lon']}
+                'name': location['name'],
+                'address': location['address'],
+                'lat': location['lat'],
+                'lon': location['lon'],
+                'identifier': location['identifier']}
 
                 new_location_link = {
-                'url': club['url'],
+                'url': location['url'],
                 'third_party': ra['id']}
                 #'third_party': ra}
                 
             except KeyError as key_error:
                 key = key_error.message
-                raise DropItem('Venue %s misses an obligatory field: %s' % (club['url'], key))
+                raise DropItem('Location %s misses an obligatory field: %s' % (location['url'], key))
                 
             # Insert Venue
-            location = db.insert_dict('locations', new_location)
+            db_location = db.insert_dict('locations', new_location)
             # Insert Venue Page
-            new_location_link['location'] = location['id']        
+            new_location_link['location'] = db_location['id']        
 
             db.insert_dict('locations/links', new_location_link)
         #item['location'] = location
         return item
     
-class EventPipeline(object):
+class HappeningPipeline(object):
     
     def __init__(self):
         pass
@@ -77,13 +77,10 @@ class EventPipeline(object):
         try:
             happening = db.get_single('happenings', item['url'], 'url')
                    
-        # If event and event page dont exist yet:
+        # If happening and happening page dont exist yet:
         except IOError:
-            
-            location = db.get_single('locations', item['club']['url'], 'url')
-            #location = item['location']
-            
-            # Obligatory fields:
+            location = db.get_single('locations', item['location']['url'], 'url')            
+
             try:
                 new_happening = {
                 'name': item['name'],
@@ -97,16 +94,16 @@ class EventPipeline(object):
                 
             except KeyError as key_error:
                 key = key_error.message
-                raise DropItem('Event %s misses an obligatory field' % (item['url'], key))
+                raise DropItem('happening %s misses an obligatory field' % (item['url'], key))
                 
-            # Insert Event
+            # Insert happening
             happening = db.insert_dict('happenings', new_happening)
-            # Insert Event Page
+            # Insert happening Page
             new_happening_link['happening'] = happening['id']
             db.insert_dict('happenings/links', new_happening_link)
-            #db.append_child('event', event, 'pages', new_event_page)
+            #db.append_child('happening', happening, 'pages', new_happening_page)
             
-        #item['db_event'] = event        
+        #item['db_happening'] = happening        
         return item
     
 
@@ -133,8 +130,8 @@ class ArtistPipeline(object):
         return item
     
     def insert_performance(item, happening, artist):
-        ''' If the event didn't exist before, we can assume
-            the event hasn't been scraped yet. We don't have
+        ''' If the happening didn't exist before, we can assume
+            the happening hasn't been scraped yet. We don't have
             to check for already existing performances.
         '''
         
